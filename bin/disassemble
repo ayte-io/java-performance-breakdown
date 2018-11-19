@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$( cd "$( dirname "$( dirname "${BASH_SOURCE[0]}" )" )" >/dev/null && pwd )"
+JAR="$ROOT/target/io.ayte.performance.breakdown.jar"
+
+if [[ ! -f "$JAR" ]]; then
+    "$ROOT/bin/compile"
+fi
+
+PATH="$(echo -n $1 | sed 's/\./\//g')"
+OUTPUT="$ROOT/target/compilation-output.txt"
+
+echo "Recording compilation output for $1 to $OUTPUT. Please be patient, this usually takes a while..."
+
+"$JAVA_HOME/bin/java" -XX:+UnlockDiagnosticVMOptions -XX:CompileCommand="option,$PATH.*,PrintNMethods" \
+ -cp "$JAR" \
+ $1 > "$ROOT/target/compilation-output.txt"
+echo "Done!"

@@ -20,8 +20,17 @@ bin/compile
 
 ## Launching
 
+Harness (checking performance itself)
+
 ```
-bin/launch <jmh parameters>
+bin/harness <jmh parameters>
+```
+
+Viewing disassembly (requires hsdis installed)
+
+```
+bin/harness <FQCN>
 ```
 
   [JMH]: http://openjdk.java.net/projects/code-tools/jmh/
+  
