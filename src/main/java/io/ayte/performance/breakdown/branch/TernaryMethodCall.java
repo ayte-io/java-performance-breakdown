@@ -41,7 +41,7 @@ public class TernaryMethodCall {
     }
 
     private String nestedMethod() {
-        return flag ? LEFT : RIGHT;
+        return flag ? getLeft() : getRight();
     }
 
     public static String getLeft() {

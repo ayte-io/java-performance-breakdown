@@ -20,7 +20,7 @@
 
         <lombok.version>1.18.2</lombok.version>
 
-        <jmh.version>1.21</jmh.version>
+        <jmh.version>1.25.2</jmh.version>
     </properties>
 
     <dependencies>

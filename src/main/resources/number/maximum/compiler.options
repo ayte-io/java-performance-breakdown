@@ -1,0 +1,5 @@
+dontinline java/lang/Math.max
+print java/lang/Math.max
+print io/ayte/performance/breakdown/number/maximum/*.run
+print io/ayte/performance/breakdown/number/maximum/*.implementation
+print io/ayte/performance/breakdown/number/maximum/inspection/*.run
