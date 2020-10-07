@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [ -z "$1" ]; then
+  echo "No benchmark package specified"
+  exit 1
+fi
+
+if [ "$#" -lt 2 ]; then
+  echo "No particular benchmarks specified"
+  exit 1
+fi
+
+PACKAGE=$1
+QUALIFIED_PACKAGE="io.ayte.performance.breakdown.$PACKAGE"
+BENCHMARKS="${@:2}"
+
+ROOT="$( cd "$( dirname "$( dirname "${BASH_SOURCE[0]}" )" )" >/dev/null 2>&1 && pwd )"
+
+echo "Running $PACKAGE benchmarks:"
+
+for BENCHMARK in $BENCHMARKS; do
+  echo " - $BENCHMARK"
+done
+
+PACKAGE_DIRECTORY="$(echo $PACKAGE | tr . /)"
+
+START_TIME="$(date +%Y-%m-%dT%H-%M-%S)"
+
+WORKSPACE="$ROOT/target/log/$PACKAGE"
+
+"$ROOT/mvnw" package
+
+mkdir -p "$WORKSPACE"
+
+for BENCHMARK in $BENCHMARKS; do
+  CLASS="$QUALIFIED_PACKAGE.$BENCHMARK"
+  BENCHMARK_WORKSPACE="$WORKSPACE/$BENCHMARK/$START_TIME"
+
+  mkdir -p "$BENCHMARK_WORKSPACE"
+
+  COMPILATION_LOG_FILE="$BENCHMARK_WORKSPACE/compilation.log"
+  OUTPUT_LOG_FILE="$BENCHMARK_WORKSPACE/output.log"
+
+  echo "Benchmark $BENCHMARK, start time: $(date --iso-8601=seconds)" | tee "$OUTPUT_LOG_FILE"
+  java -XX:+UnlockDiagnosticVMOptions \
+    "-XX:CompileCommandFile=$ROOT/src/main/resources/$PACKAGE_DIRECTORY/compiler.options" \
+    -XX:+LogCompilation "-XX:LogFile=$COMPILATION_LOG_FILE" \
+    -jar "$ROOT/target/io.ayte.performance.breakdown.jar" \
+    "$CLASS" \
+    -prof perfnorm 2>&1 | tee -a "$OUTPUT_LOG_FILE"
+
+  echo "Benchmark $BENCHMARK, end time: $(date --iso-8601=seconds)" | tee -a "$OUTPUT_LOG_FILE"
+done
